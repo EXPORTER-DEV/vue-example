@@ -121,7 +121,7 @@
   			</div>
 		</div>
 		<div class="items">
-			<todo-element v-for="(item) in todos.slice().map((item, index) => {item.index = index; return item;}).reverse()" v-bind:name="item.name" v:key="item.id" v-bind:index="item.index" v-bind:id="item.id" v-on:delete="deleteItem"></todo-element>
+			<todo-element v-for="(item) in todos.slice().map((item, index) => {item.index = index; return item;}).reverse()" v-bind:name="item.name" v-bind:key="item.id" v-bind:index="item.index" v-bind:id="item.id" v-on:delete="deleteItem"></todo-element>
 			<div v-if="todos.length == 0" class="niceEmpty">Empty here.</div>
 		</div>
 
