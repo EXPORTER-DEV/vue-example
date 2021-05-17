@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Vue Example</title>
+	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+	<style type="text/css">
+		body, html {
+			padding: 0px !important;
+			margin: 0px !important;
+			font-family: 'Roboto', sans-serif;
+		}
+		#app {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			overflow-x: scroll;
+			padding: 10px;
+		}
+		#app > .form {
+			padding: 0px 0px 10px 0px;
+			border-bottom: 1px solid rgb(240,240,240);
+		}
+		#app > .form > .hint {
+			color: rgb(50,50,50);
+			font-size: 13px;
+			padding: 5px;
+			margin-top: 5px;
+		}
+		#app > .items {
+			padding: 5px 0px;
+		}
+		.niceEmpty {
+			color: rgb(50,50,50);
+			font-size: 13px;
+			padding: 5px;
+			margin-top: 5px;
+		}
+		.niceTodo {
+			padding: 7px 5px;
+			font-size: 14px;
+			border-radius: 7px;
+			background: rgb(49,49,49);
+			color: white;
+			display: flex;
+			flex-direction: row;
+			vertical-align: middle;
+		}
+		.niceTodo > .index {
+			background: white;
+			color: black;
+			font-weight: 500;
+			border-radius: 8px;
+			padding: 0px 5px;
+			margin-right: 8px;
+		}
+
+		.niceTodo > .remove {
+			align-self: flex-end;
+			background: rgb(210,50,50);
+			color: white;
+			font-weight: 400;
+			border-radius: 8px;
+			padding: 0px 7px;
+			margin-left: auto;
+			transition-property: opacity;
+			transition-duration: 200ms;
+			opacity: 0;
+			user-select: none;
+			cursor: pointer;
+		}
+
+		.niceTodo:hover > .remove {
+			opacity: 1;
+		}
+
+		.niceTodo:not(:last-child){
+			margin-bottom: 9px;
+		}
+
+		.niceButton {
+			padding: 5px;
+			font-size: 14px;
+			box-sizing: border-box;
+			border: 1px solid rgb(190,190,190);
+			border-radius: 4px;
+			background: white;
+			color: black;
+			cursor: pointer;
+		}
+		.niceButton.inActive {
+			cursor: auto;
+			background: rgb(240,240,240);
+		}
+		.niceInput {
+			padding: 5px;
+			font-size: 14px;
+			box-sizing: border-box;
+			border: 1px solid rgb(190,190,190);
+			border-radius: 4px;
+			background: white;
+			color: black;
+			cursor: pointer;
+		}
+		.niceInput:active, .niceInput:focus-visible {
+			outline: none;
+		}
+	</style>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div id="app">
+		<h1>Simple todo list.</h1>
+		<div class="form">
+			<input-element v-bind:value="todoText" name="What to do?" v-on:input="todoText = $event"></input-element>
+			<button-element name="Add" v-on:click="addItem" v-bind:active="allowCreation"></button-element>
+			<div class="hint" v-if="allowCreation" v-bind:title="todoText">
+    		Would like create todo "{{ todoText }}"? Press the button!
+  			</div>
+		</div>
+		<div class="items">
+			<todo-element v-for="(item) in todos.slice().map((item, index) => {item.index = index; return item;}).reverse()" v-bind:name="item.name" v:key="item.id" v-bind:index="item.index" v-bind:id="item.id" v-on:delete="deleteItem"></todo-element>
+			<div v-if="todos.length == 0" class="niceEmpty">Empty here.</div>
+		</div>
+
+	</div>
+	<script type="text/javascript">
+		Vue.component('input-element', {
+			props: ['name', 'value'],
+			template: `<input v-bind:value="value" v-on:input="$emit('input', $event.target.value)" v-bind:placeholder="name" class="niceInput">`,
+		});
+		Vue.component('todo-element', {
+			props: ['name', 'id', 'index'],
+			template: `<div class="niceTodo"><div class="index">{{index + 1 }}</div><div class="message">{{ name }}</div><div class="remove" v-on:click="$emit('delete', id)">remove</div></div>`,
+		});
+		Vue.component('button-element', {
+			data: function(){
+				return {
+					counter: 0,
+				}
+			},
+			props: ['name', 'active'],
+			template: `<button v-on:click="counter++; $emit('click')" class="niceButton" v-bind:class="{inActive: !active}">{{ name }}</button>`,
+		});
+		var app = new Vue({
+		  el: '#app',
+		  data: {
+		  	todos: [],
+		  	todoText: '',
+		  	allowCreation: 0,
+		  },
+		  methods: {
+		  	addItem: function(){
+		  		if(this.allowCreation){
+		  			this.todos.push({name: this.todoText, id: Math.random()});
+		  			this.todoText = '';
+		  		}
+		  	},
+		  	deleteItem: function(id){
+		  		this.todos = this.todos.filter((item) => {
+		  			if(item.id !== id){
+		  				return 1;
+		  			}
+		  			return 0;
+		  		})
+		  	},
+		  },
+		  watch: {
+		  	todoText: function(val){
+		  		if(val.replace(/\s/gi, '').length > 0){
+		  			this.allowCreation = 1;
+		  		}else{
+		  			this.allowCreation = 0;
+		  		}
+		  	},
+		  },
+		});
+
+	</script>
+</body>
+</html>
